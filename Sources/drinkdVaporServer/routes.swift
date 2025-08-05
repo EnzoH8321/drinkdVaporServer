@@ -201,8 +201,8 @@ func routes(_ app: Application, supabase: SupaBase) throws {
     }
 
     // MARK: WebSocket
-    app.webSocket("testWS", ":username", ":userID", ":partyID", ) { req, ws in
-
+    app.webSocket("testWS", ":username", ":userID", ":partyID" ) { req, ws in
+        Log.routes.notice("Websocket hit")
         guard let partyID = req.parameters.get("partyID") else {
             Log.routes.error("Party ID not found")
             return

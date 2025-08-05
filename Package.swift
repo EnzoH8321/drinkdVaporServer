@@ -16,8 +16,7 @@ let package = Package(
             url: "https://github.com/supabase/supabase-swift.git",
             from: "2.0.0"
         ),
-        .package(path: "../drinkdSharedModels")
-
+        .package(url: "https://github.com/EnzoH8321/drinkdSharedModels.git", from: "1.0.0")
     ],
     targets: [
         .executableTarget(

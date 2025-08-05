@@ -1,5 +1,5 @@
 {
-  "originHash" : "b3a4497bb87d8184bd84b7a83230d78288344848b22f987a5f6efe05346c4f59",
+  "originHash" : "43ab39a548c4636cf092c00f48e02e3265f31a6341688bf46f4d6182bab53f67",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "742f624a998cba2a9e653d9b1e91ad3f3a5dff6b",
         "version" : "4.15.2"
+      }
+    },
+    {
+      "identity" : "drinkdsharedmodels",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/EnzoH8321/drinkdSharedModels.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "c66241fdeb630c38dd0105c285afb1ccbcfa1988"
       }
     },
     {

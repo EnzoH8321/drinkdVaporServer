@@ -21,9 +21,6 @@ func routes(_ app: Application, supabase: SupaBase) throws {
 
                     let newParty = try await supabase.createAParty(req)
 
-                    // Create a message channel
-                    await supabase.rdbCreateChannel(partyID: newParty.id)
-
                     let respObj = CreatePartyResponse(partyID: newParty.id, partyCode: newParty.code)
                     return try RouteHelper.createResponse(data: respObj)
 
@@ -98,9 +95,6 @@ func routes(_ app: Application, supabase: SupaBase) throws {
 
                     // Send Message to Messages Table
                     try await supabase.sendMessage(msgReq, messageID: id)
-
-                    // Broadcast message
-                    await supabase.rdbSendMessage(userName: msgReq.userName, userID: msgReq.userID, message: msgReq.message, messageID: id, partyID: msgReq.partyID)
 
                     return Response()
                 } catch {
@@ -201,30 +195,29 @@ func routes(_ app: Application, supabase: SupaBase) throws {
     }
 
     // MARK: WebSocket
-    app.webSocket("testWS", ":username", ":userID", ":partyID" ) { req, ws in
-        Log.routes.notice("Websocket hit")
-        guard let partyID = req.parameters.get("partyID") else {
-            Log.routes.error("Party ID not found")
-            return
-        }
-
-        guard let userID =  UUID(uuidString: req.parameters.get("userID") ?? "")  else {
-            Log.routes.error("userID not found")
-            return
-        }
-
-        // Check if the websocket connection has closed
-        ws.onClose.whenComplete { result in
-            switch result {
-            case .success(let success):
-                Log.routes.info("Successfully closed websocket connection for PARTYID: \(partyID)")
-            case .failure(let failure):
-                Log.routes.error("Unable to close websocket connection - \(failure)")
-            }
-        }
-
-        supabase.rdbListenForMessages(ws: ws, partyID: partyID)
-    }
+//    app.webSocket("testWS", ":username", ":userID", ":partyID" ) { req, ws in
+//        Log.routes.notice("Websocket hit")
+//        guard let partyID = req.parameters.get("partyID") else {
+//            Log.routes.error("Party ID not found")
+//            return
+//        }
+//
+//        guard let userID =  UUID(uuidString: req.parameters.get("userID") ?? "")  else {
+//            Log.routes.error("userID not found")
+//            return
+//        }
+//
+//        // Check if the websocket connection has closed
+//        ws.onClose.whenComplete { result in
+//            switch result {
+//            case .success(let success):
+//                Log.routes.info("Successfully closed websocket connection for PARTYID: \(partyID)")
+//            case .failure(let failure):
+//                Log.routes.error("Unable to close websocket connection - \(failure)")
+//            }
+//        }
+//
+//    }
 
 
 }

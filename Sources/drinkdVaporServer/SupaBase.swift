@@ -31,7 +31,7 @@ class VaporAuthStorage: AuthLocalStorage, @unchecked Sendable {
 final class SupaBase {
     // RDB Channels
     // [channel name: channel]
-    var channels: [String: RealtimeChannelV2] = [:]
+//    var channels: [String: RealtimeChannelV2] = [:]
     private let client: SupabaseClient
 
     init() {
@@ -353,107 +353,3 @@ extension SupaBase {
 
     }
 }
-
-//MARK: RealTime DB
-extension SupaBase {
-    // Creates channel, partyID should be the channel identifier
-    // Only use when creating party
-    func rdbCreateChannel(partyID: UUID) async {
-
-        let channel = client.channel(partyID.uuidString) {
-            $0.broadcast.receiveOwnBroadcasts = true
-        }
-
-        let broadcastStream = channel.broadcastStream(event: "newMessage")
-
-        await channel.subscribe()
-
-        channels[partyID.uuidString] = channel
-    }
-
-    func rdbSendMessage(userName: String, userID: UUID, message: String, messageID: UUID, partyID: UUID) async {
-
-        if let channel = channels[partyID.uuidString] {
-
-            do {
-
-                try await channel.broadcast(
-                    event: "newMessage",
-                    message: [
-                        "message": message,
-                        "userID": userID.uuidString,
-                        "userName": userName,
-                        "messageID": messageID.uuidString
-                    ]
-                )
-
-            } catch {
-                Log.supabase.error("Error in rdbSendMessage - \(error)")
-            }
-
-        }
-    }
-
-
-    func rdbListenForMessages(ws: WebSocket, partyID: String) {
-
-        // Get Channel
-        guard let channel = channels[partyID] else {
-            Log.routes.error("Channel not found")
-            return
-        }
-
-        // Get Broadcast stream
-        let stream = channel.broadcastStream(event: "newMessage")
-
-        Task {
-            // Get latest Messages
-            for await jsonObj in stream {
-
-                guard let payload = jsonObj["payload"]?.value as? [String: Any] else {
-                    Log.routes.error("Unable to parse payload")
-                    return
-                }
-
-                guard let message = payload["message"] as? String else {
-                    Log.routes.error("Unable to parse message")
-                    return
-                }
-
-                guard let username = payload["userName"] as? String else {
-                    Log.routes.error("Unable to parse username")
-                    return
-                }
-
-                guard let idString = payload["messageID"] as? String, let messageID = UUID(uuidString: idString)  else {
-                    Log.routes.error("Unable to parse messageID")
-                    return
-                }
-
-                guard let userIDString = payload["userID"] as? String, let userID = UUID(uuidString: userIDString)  else {
-                    Log.routes.error("Unable to parse userID")
-                    return
-                }
-
-                do {
-                    let wsMessage = WSMessage(id: messageID, text: message, username: username, timestamp: Date.now, userID: userID)
-                    let data = try JSONEncoder().encode(wsMessage)
-                    let byteArray: [UInt8] = data.withUnsafeBytes { bytes in
-                        return Array(bytes)
-                    }
-
-                    try await ws.send(byteArray)
-                } catch {
-                    Log.routes.error("Error sending ws message - \(message)")
-                }
-
-            }
-
-            Log.routes.info("TASK DONE")
-        }
-    }
-
-
-}
-
-

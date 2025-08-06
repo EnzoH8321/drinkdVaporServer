@@ -194,30 +194,4 @@ func routes(_ app: Application, supabase: SupaBase) throws {
         }
     }
 
-    // MARK: WebSocket
-//    app.webSocket("testWS", ":username", ":userID", ":partyID" ) { req, ws in
-//        Log.routes.notice("Websocket hit")
-//        guard let partyID = req.parameters.get("partyID") else {
-//            Log.routes.error("Party ID not found")
-//            return
-//        }
-//
-//        guard let userID =  UUID(uuidString: req.parameters.get("userID") ?? "")  else {
-//            Log.routes.error("userID not found")
-//            return
-//        }
-//
-//        // Check if the websocket connection has closed
-//        ws.onClose.whenComplete { result in
-//            switch result {
-//            case .success(let success):
-//                Log.routes.info("Successfully closed websocket connection for PARTYID: \(partyID)")
-//            case .failure(let failure):
-//                Log.routes.error("Unable to close websocket connection - \(failure)")
-//            }
-//        }
-//
-//    }
-
-
 }

@@ -25,7 +25,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return try RouteHelper.createResponse(data: respObj)
 
                 } catch {
-                    Log.routes.warning("Error on createParty route - \(error)")
+                    Log.error.log("Error on createParty route - \(error)")
                     return RouteHelper.createErrorResponse(error: error)
                 }
 
@@ -44,7 +44,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return try RouteHelper.createResponse(data: respObj)
 
                 } catch {
-                    Log.routes.warning("Error on joinParty route - \(error)")
+                    Log.error.log("Error on joinParty route - \(error)")
                     return RouteHelper.createErrorResponse(error: error)
                 }
             }
@@ -73,7 +73,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return Response()
 
                 } catch {
-                    Log.routes.warning("Error on leaveParty route - \(error)")
+                    Log.error.log("Error on leaveParty route - \(error)")
                     return RouteHelper.createErrorResponse(error: error)
                 }
 
@@ -98,7 +98,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
 
                     return Response()
                 } catch {
-                    Log.routes.warning("Error on leaveParty route - \(error)")
+                    Log.error.log("Error on leaveParty route - \(error)")
                     return RouteHelper.createErrorResponse(error: error)
                 }
 
@@ -117,7 +117,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return Response()
 
                 } catch {
-                    Log.routes.warning("Error on updateRating route - \(error)")
+                    Log.error.log("Error on updateRating route - \(error)")
                     return RouteHelper.createErrorResponse(error: error)
                 }
             }
@@ -143,7 +143,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
 
                     return try RouteHelper.createResponse(data: responseObj)
                 } catch {
-                    Log.routes.warning("Error on topChoices route - \(error)")
+                    Log.error.log("Error on topChoices route - \(error)")
                     return RouteHelper.createErrorResponse(error: error)
                 }
 
@@ -166,7 +166,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return try RouteHelper.createResponse(data: responseObj)
 
                 } catch {
-                    Log.routes.warning("Error on topChoices route - \(error)")
+                    Log.error.log("Error on topChoices route - \(error)")
                     return RouteHelper.createErrorResponse(error: error)
                 }
             }
@@ -186,7 +186,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return try RouteHelper.createResponse(data: responseObj)
 
                 } catch {
-                    Log.routes.warning("Error on getMessages route - \(error)")
+                    Log.error.log("Error on getMessages route - \(error)")
                     return RouteHelper.createErrorResponse(error: error)
                 }
 

@@ -71,7 +71,7 @@ final class SupaBase {
             if isPartyLeader { try await deleteRow(fromTable: .parties, rowID: partyID, userID: userID) }
 
         } catch {
-            Log.supabase.error("Unable to Delete Party due to error: \(error)")
+            Log.error.log("Unable to Delete Party due to error: \(error)")
             throw error
         }
     }
@@ -84,7 +84,7 @@ final class SupaBase {
             let table = try tableType.typeCast(from: data)
             try await client.from(tableType.tableName).upsert(table).execute()
         } catch {
-            Log.supabase.error("upsertDataToTable failed: \(error)")
+            Log.error.log("upsertDataToTable failed: \(error)")
             throw error
         }
 
@@ -98,7 +98,7 @@ final class SupaBase {
             try await client.from(tableType.tableName).insert(table).execute()
 
         } catch {
-            Log.supabase.error("insertRowToTable failed: \(error)")
+            Log.error.log("insertRowToTable failed: \(error)")
             throw error
         }
 
@@ -111,14 +111,14 @@ final class SupaBase {
         case .parties:
 
             guard let userID = userID else {
-                Log.supabase.error("Invalid Leader ID passed in")
+                Log.error.log("Invalid Leader ID passed in")
                 throw SharedErrors.supabase(error: .dataNotFound)
             }
 
             do {
                 try await client.from(fromTable.tableName).delete().eq("party_leader", value: userID).execute()
             } catch {
-                Log.supabase.error("deleteDataFromTable failed: \(error)")
+                Log.error.log("deleteDataFromTable failed: \(error)")
                 throw error
             }
 
@@ -126,7 +126,7 @@ final class SupaBase {
             do {
                 try await client.from(fromTable.tableName).delete().eq("id", value: rowID).execute()
             } catch {
-                Log.supabase.error("deleteDataFromTable failed: \(error)")
+                Log.error.log("deleteDataFromTable failed: \(error)")
                 throw error
             }
         }
@@ -143,7 +143,7 @@ final class SupaBase {
         do {
             return try tableType.decode(from: response.data)
         } catch {
-            Log.supabase.error("fetchRow failed: \(error)")
+            Log.error.log("fetchRow failed: \(error)")
             throw error
         }
     }
@@ -248,7 +248,7 @@ extension SupaBase {
         }
 
         if restaurants.isEmpty {
-            Log.supabase.info("Empty restaurants array")
+            Log.error.log("Empty restaurants array")
             return []
         }
 

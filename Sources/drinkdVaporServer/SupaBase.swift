@@ -228,6 +228,12 @@ extension SupaBase {
         let id = existingRestaurant != nil ? existingRestaurant!.id : UUID()
         let restaurant = RatedRestaurantsTable(id: id ,partyID: req.partyID, userID: req.userID, userName: req.userName, restaurantName: req.restaurantName, rating: req.rating, imageURL: req.imageURL)
 
+        // If the vote is 0, remove that restaurant from the user's rated restaurants
+        if req.rating == 0 {
+            try await deleteRow(fromTable: .ratedRestaurants, rowID: id)
+            return
+        }
+
         try await upsertDataToTable(tableType: .ratedRestaurants, data: restaurant)
     }
 

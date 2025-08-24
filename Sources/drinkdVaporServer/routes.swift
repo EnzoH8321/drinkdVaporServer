@@ -129,6 +129,33 @@ func routes(_ app: Application, supabase: SupaBase) throws {
     for route in HTTP.GetRoutes.allCases {
         switch route {
 
+        case .ratedRestaurants:
+            app.get("ratedRestaurants") { req async -> Response in
+
+                do {
+                    guard let path = req.url.query else { return Response(status: .badRequest) }
+                    let pathComponents = path.components(separatedBy: "&")
+                    let userIDString = pathComponents[0].components(separatedBy: "=")[1]
+                    let partyIDString = pathComponents[1].components(separatedBy: "=")[1]
+
+                    guard let userID = pathComponents.count == 2 ? userIDString : nil else {
+                        throw SharedErrors.general(error: .generalError("Unable to parse user id"))
+                    }
+
+                    guard let partyID = pathComponents.count == 2 ? partyIDString : nil else { throw SharedErrors.general(error: .generalError("Unable to parse partyID"))}
+
+                    let restaurants: [RatedRestaurantsTable] = try await supabase.getRatedRestaurants(userID: userID, partyID: partyID)
+
+                    let responseObj = RatedRestaurantsGetResponse(ratedRestaurants: restaurants)
+
+                    return try RouteHelper.createResponse(data: responseObj)
+                } catch {
+                    Log.error.log("Error on topChoices route - \(error)")
+                    return RouteHelper.createErrorResponse(error: error)
+                }
+
+            }
+
         case .topRestaurants:
             app.get("topRestaurants") { req async -> Response in
 

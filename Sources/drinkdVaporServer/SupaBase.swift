@@ -292,6 +292,21 @@ extension SupaBase {
         return sorted
     }
 
+    // Get an array of rated restaurants
+    func getRatedRestaurants(userID: String, partyID: String) async throws -> [RatedRestaurantsTable] {
+
+        guard let restaurants = try await fetchRows(tableType: .ratedRestaurants, dictionary: ["party_id": partyID, "user_id" : userID]) as? [RatedRestaurantsTable] else {
+            throw SharedErrors.supabase(error: .dataNotFound)
+        }
+
+        if restaurants.isEmpty {
+            Log.error.log("Empty restaurants array")
+            return []
+        }
+
+        return restaurants
+    }
+
     func rejoinParty(userID: String) async throws -> PartiesTable {
         // Query the Users Table and get the associated party_id of the user
         guard let user = try await fetchRows(tableType: .users, dictionary: ["id": userID]).first as? UsersTable else { throw SharedErrors.supabase(error: .dataNotFound)}

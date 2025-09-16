@@ -59,6 +59,10 @@ final class SupaBase {
         )
     }
 
+    init (client: SupabaseClient) {
+        self.client = client
+    }
+
     // Manually deletes the party.
     // Only the party leader should be able to do this.
     private func deleteParty(userID: UUID, partyID: UUID) async throws {

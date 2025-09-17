@@ -85,7 +85,7 @@ struct SupaBaseTests {
 
     }
 
-    @Test("Join a Party")
+    @Test("Join a party")
     func joinParty_Test() async throws {
         do {
             let _ = try await stubCreateAParty()
@@ -123,7 +123,7 @@ struct SupaBaseTests {
         }
     }
 
-    @Test("Send a Message")
+    @Test("Send a message")
     func sendMessage_Test() async throws {
 
         do {
@@ -141,6 +141,73 @@ struct SupaBaseTests {
             Issue.record(error)
         }
 
+    }
+
+    @Test("Top choices")
+    func getTopChoices_Test() async throws {
+        do {
+            try await stubCreateAParty()
+            try await stubCreateARestaurant()
+            let restaurants = try await supabase.getTopChoices(partyID: FakeParty.id.uuidString)
+            let restaurant = try #require(restaurants.first)
+
+            #expect(restaurants.count == 1)
+            #expect(restaurant.restaurant_name == FakeRestaurant.name)
+            #expect(restaurant.rating == FakeRestaurant.rating)
+            #expect(restaurant.id == FakeRestaurant.id)
+            #expect(restaurant.image_url == FakeRestaurant.imageURL)
+            #expect(restaurant.party_id == FakeRestaurant.partyID)
+
+            try await stubCleanupRestaurant()
+            try await stubCleanupParty()
+        } catch {
+            Issue.record(error)
+        }
+
+    }
+
+    @Test("Rated restaurants")
+    func getRatedRestaurants_Test() async throws {
+        do {
+            try await stubCreateAParty()
+            try await stubCreateARestaurant()
+
+            let restaurants = try await supabase.getRatedRestaurants(userID: FakePartyLeader.id.uuidString, partyID: FakeParty.id.uuidString)
+            let restaurant = try #require(restaurants.first)
+
+            #expect(restaurants.count == 1)
+            #expect(restaurant.restaurant_name == FakeRestaurant.name)
+            #expect(restaurant.rating == FakeRestaurant.rating)
+            #expect(restaurant.id == FakeRestaurant.id)
+            #expect(restaurant.image_url == FakeRestaurant.imageURL)
+            #expect(restaurant.party_id == FakeRestaurant.partyID)
+
+            try await stubCleanupRestaurant()
+            try await stubCleanupParty()
+        } catch {
+            Issue.record(error)
+        }
+    }
+
+    @Test("Rejoin party")
+    func rejoinParty_Test() async throws {
+        do {
+            try await stubCreateAParty()
+            try await stubCreateAHost()
+
+            let party = try await supabase.rejoinParty(userID: FakePartyLeader.id.uuidString)
+
+            #expect(party.id == FakeParty.id)
+            #expect(party.party_name == FakeParty.name)
+            #expect(party.party_leader == FakePartyLeader.id)
+            #expect(party.code == FakeParty.code)
+            #expect(party.restaurants_url == FakeParty.restaurantURL)
+
+            try await stubCleanupUser(FakePartyLeader.id)
+            try await stubCleanupParty()
+        } catch {
+            Issue.record(error)
+        }
     }
 
 }

@@ -32,7 +32,24 @@ final class SupaBase {
 
     private let client: SupabaseClient
 
-    init() {
+    init (client: SupabaseClient) {
+        self.client = client
+    }
+
+    static func setClient() -> SupabaseClient {
+#if DEBUG
+        return SupabaseClient(
+            supabaseURL: URL(string: "http://localhost:54321")!,
+            supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
+            options: SupabaseClientOptions(
+                db: .init(),
+                auth: .init(storage: VaporAuthStorage()),
+                global: .init(),
+                realtime: .init()
+            )
+        )
+#else
+        // Release/Production configuration
         let supabaseKey: String
 
         // Fallback to environment variable
@@ -47,7 +64,7 @@ final class SupaBase {
             fatalError("Invalid Supabase URL")
         }
 
-        self.client = SupabaseClient(
+        return SupabaseClient(
             supabaseURL: supabaseURL,
             supabaseKey: supabaseKey,
             options: SupabaseClientOptions(
@@ -57,10 +74,7 @@ final class SupaBase {
                 realtime: .init()
             )
         )
-    }
-
-    init (client: SupabaseClient) {
-        self.client = client
+#endif
     }
 
     // Manually deletes the party.

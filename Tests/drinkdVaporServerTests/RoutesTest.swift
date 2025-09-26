@@ -51,14 +51,6 @@ struct RoutesTest {
             let buffer = ByteBuffer(data: data)
             try await SupabaseUtils.stubCreateAParty(client: client)
 
-            defer {
-                Task {
-                    try await SupabaseUtils.stubCleanupParty(client: client)
-                    try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
-                }
-            }
-
-
             try await app.testing().test(.POST, "joinParty", body: buffer) { res async in
                 do {
 
@@ -75,6 +67,9 @@ struct RoutesTest {
 
             }
 
+            try await SupabaseUtils.stubCleanupParty(client: client)
+            try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
+
         }
     }
 
@@ -88,13 +83,6 @@ struct RoutesTest {
             try await SupabaseUtils.stubCreateAParty(client: client)
             try await SupabaseUtils.stubCreateAHost(client: client)
 
-            defer {
-                Task {
-                    try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
-                    try await SupabaseUtils.stubCleanupRestaurant(client: client)
-                }
-            }
-
             try await app.testing().test(.POST, "leaveParty", body: buffer) { res async in
 
                 do {
@@ -106,6 +94,9 @@ struct RoutesTest {
                 }
 
             }
+
+            try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
+            try await SupabaseUtils.stubCleanupRestaurant(client: client)
 
         }
 
@@ -122,16 +113,13 @@ struct RoutesTest {
             try await SupabaseUtils.stubCreateAParty(client: client)
             try await SupabaseUtils.stubCreateAHost(client: client)
 
-            defer {
-                Task {
-                    try await SupabaseUtils.stubCleanupParty(client: client)
-                    try await SupabaseUtils.stubCleanupUser(FakeParty.id, client: client)
-                }
-            }
 
             try await app.testing().test(.POST, "sendMessage", body: buffer) { res async in
                 #expect((200...299).contains(res.status.code))
             }
+
+            try await SupabaseUtils.stubCleanupParty(client: client)
+            try await SupabaseUtils.stubCleanupUser(FakeParty.id, client: client)
 
         }
 
@@ -148,14 +136,6 @@ struct RoutesTest {
             try await SupabaseUtils.stubCreateAHost(client: client)
             try await SupabaseUtils.stubCreateARestaurant(client: client)
 
-            defer {
-                Task {
-                    try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
-                    try await SupabaseUtils.stubCleanupParty(client: client)
-                    try await SupabaseUtils.stubCleanupRestaurant(client: client)
-                }
-            }
-
 
             try await app.testing().test(.POST, "updateRating", body: buffer) { res async in
                 do {
@@ -163,7 +143,9 @@ struct RoutesTest {
                 }
             }
 
-
+            try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
+            try await SupabaseUtils.stubCleanupParty(client: client)
+            try await SupabaseUtils.stubCleanupRestaurant(client: client)
 
         }
 
@@ -177,15 +159,6 @@ struct RoutesTest {
             try await SupabaseUtils.stubCreateAHost(client: client)
             try await SupabaseUtils.stubCreateAParty(client: client)
             try await SupabaseUtils.stubCreateARestaurant(client: client)
-
-            defer {
-                Task {
-                    try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
-                    try await SupabaseUtils.stubCleanupParty(client: client)
-                    try await SupabaseUtils.stubCleanupRestaurant(client: client)
-                }
-            }
-
 
             try await app.testing().test(.GET, "ratedRestaurants?userID=\(FakePartyLeader.id.uuidString)&partyID=\(FakeParty.id.uuidString)") { res async in
                 do {
@@ -205,6 +178,10 @@ struct RoutesTest {
 
             }
 
+            try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
+            try await SupabaseUtils.stubCleanupParty(client: client)
+            try await SupabaseUtils.stubCleanupRestaurant(client: client)
+
         }
     }
 
@@ -216,14 +193,6 @@ struct RoutesTest {
             try await SupabaseUtils.stubCreateAHost(client: client)
             try await SupabaseUtils.stubCreateAParty(client: client)
             try await SupabaseUtils.stubCreateARestaurant(client: client)
-
-            defer {
-                Task {
-                    try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
-                    try await SupabaseUtils.stubCleanupParty(client: client)
-                    try await SupabaseUtils.stubCleanupRestaurant(client: client)
-                }
-            }
 
             try await app.testing().test(.GET, "topRestaurants?partyID=\(FakeParty.id)") { res async in
                 do {
@@ -245,6 +214,10 @@ struct RoutesTest {
 
             }
 
+            try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
+            try await SupabaseUtils.stubCleanupParty(client: client)
+            try await SupabaseUtils.stubCleanupRestaurant(client: client)
+
         }
     }
 
@@ -258,16 +231,7 @@ struct RoutesTest {
             try await SupabaseUtils.stubCreateAGuest(client: client)
             try await SupabaseUtils.stubCreateAParty(client: client)
 
-            defer {
-                Task {
-                    try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
-                    try await SupabaseUtils.stubCleanupUser(FakeGuest.id, client: client)
-                    try await SupabaseUtils.stubCleanupParty(client: client)
-                }
-            }
-
             try await app.testing().test(.GET, "rejoinParty?userID=\(FakeGuest.id)") { res async in
-
 
                 do {
                     #expect((200...299).contains(res.status.code))
@@ -283,7 +247,9 @@ struct RoutesTest {
 
             }
 
-
+            try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
+            try await SupabaseUtils.stubCleanupUser(FakeGuest.id, client: client)
+            try await SupabaseUtils.stubCleanupParty(client: client)
         }
     }
 
@@ -295,14 +261,6 @@ struct RoutesTest {
             try await SupabaseUtils.stubCreateAHost(client: client)
             try await SupabaseUtils.stubCreateAParty(client: client)
             try await SupabaseUtils.stubCreateAMessage(userID: FakePartyLeader.id, userName: FakePartyLeader.username, client: client)
-
-            defer {
-                Task {
-                    try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
-                    try await SupabaseUtils.stubCleanupParty(client: client)
-                    try await SupabaseUtils.stubCleanupMessage(client: client)
-                }
-            }
 
             try await app.testing().test(.GET, "getMessages?partyID=\(FakeParty.id)") { res async in
 
@@ -323,6 +281,10 @@ struct RoutesTest {
                 }
 
             }
+
+            try await SupabaseUtils.stubCleanupUser(FakePartyLeader.id, client: client)
+            try await SupabaseUtils.stubCleanupParty(client: client)
+            try await SupabaseUtils.stubCleanupMessage(client: client)
         }
     }
 

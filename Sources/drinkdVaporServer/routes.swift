@@ -218,6 +218,40 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                 }
 
             }
+        case .yelpRestaurants:
+            app.get("yelpRestaurants") { req async -> Response in
+
+                do {
+                    guard let path = req.url.query else { return Response(status: .badRequest) }
+
+                    let pathComponents = path.components(separatedBy: "=")
+                    guard let encodedUrlString = pathComponents.count == 2 ? pathComponents[1] : nil else { throw SharedErrors.general(error: .generalError("Unable to parse yelp url"))}
+
+                    let decodeUrlString = encodedUrlString.replacingOccurrences(of: "%3D", with: "=").replacingOccurrences(of: "%26", with: "&")
+
+                    guard let yelpKey = Environment.get("YELP_KEY") else {
+                        Log.error.log("Unable to retrieve yelp key")
+                        return RouteHelper.createErrorResponse(error: SharedErrors.internalServerError(error: "Server was unable to retrieve the yelp key"))
+                    }
+
+                    let uri = URI(string: decodeUrlString)
+
+                    let yelpResponse = try await req.client.get(uri) { outgoingReq in
+                        outgoingReq.headers.bearerAuthorization = BearerAuthorization(token: yelpKey)
+                    }
+
+                    guard let validData = yelpResponse.body else {
+                        return RouteHelper.createErrorResponse(error: SharedErrors.internalServerError(error: "Unable to get yelp data"))
+                    }
+
+                    return Response(body: Response.Body(data: Data(buffer: validData)))
+
+                } catch {
+                    Log.error.log("Error on getMessages route - \(error)")
+                    return RouteHelper.createErrorResponse(error: error)
+                }
+
+            }
         }
     }
 

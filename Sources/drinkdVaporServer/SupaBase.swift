@@ -28,7 +28,7 @@ class VaporAuthStorage: AuthLocalStorage, @unchecked Sendable {
     }
 }
 
-final class SupaBase {
+final class SupaBase: Sendable {
 
     private let client: SupabaseClient
 

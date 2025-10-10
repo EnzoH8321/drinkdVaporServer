@@ -87,9 +87,9 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     guard let reqBody = req.body.data else { return Response(status: .badRequest) }
                     let msgReq = try JSONDecoder().decode(SendMessageRequest.self, from: reqBody)
 
-                    guard let userData = try await supabase.fetchRows(tableType: .users, dictionary: ["id": "\(msgReq.userID)"]).first as? UsersTable else {
-                        throw SharedErrors.supabase(error: .rowIsEmpty)
-                    }
+//                    guard let userData = try await supabase.fetchRows(tableType: .users, dictionary: ["id": "\(msgReq.userID)"]).first as? UsersTable else {
+//                        throw SharedErrors.supabase(error: .rowIsEmpty)
+//                    }
                     //Message ID, same ID for both the MessageTable id & WSMessage
                     let id = UUID()
 

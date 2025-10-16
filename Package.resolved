@@ -1,5 +1,5 @@
 {
-  "originHash" : "5d374441e474bf120303fac18ff7e104397ba819309cb61d2e7f70ecc1944ef0",
+  "originHash" : "c4096e47ebf7ac786b982ff490c710cd45cd9c800664c7e7181e7e239734924d",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -34,7 +34,7 @@
       "location" : "https://github.com/EnzoH8321/drinkdSharedModels.git",
       "state" : {
         "branch" : "main",
-        "revision" : "668fbf9b8bcc861f95334bf10a2a6a3cbc2d19c4"
+        "revision" : "9ba433dbac8e0c0c781ed1d003f71fb9ddd46841"
       }
     },
     {

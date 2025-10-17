@@ -18,7 +18,8 @@ final class RouteHelper {
         return response
     }
 
-    static func createErrorResponse(error: any Error) -> Response {
+    static func createErrorResponse(error: any Error, _ errorMsg: String, file: String = #file, line: Int = #line) -> Response {
+        Log.error.log("\(errorMsg)", file: file, line: line)
         let errorWrapperJSON = try! JSONEncoder().encode(ErrorWrapper(errorType: error))
         let errorResponse = Response()
         errorResponse.status = .internalServerError

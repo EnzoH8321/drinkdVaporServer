@@ -23,7 +23,7 @@ enum Log {
             logging.info("[\(fileName):\(line)] - \(msg)")
         case .error:
             let logging = Logger(label: "drinkdVaporServer")
-            logging.error("[\(fileName):\(line)] - \(msg)")
+            logging.error("⚠️ [\(fileName):\(line)] - \(msg)")
         }
 
     }

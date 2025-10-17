@@ -1,7 +1,7 @@
 import Vapor
 import drinkdSharedModels
 
-func routes(_ app: Application, supabase: SupaBase) throws {
+func routes(_ app: Application, supabase: SupaBase, yelpAPIKey: String) throws {
     // For Testing the server is up and running
     app.get("hello") { req in
         return "HELLO VAPOR"
@@ -25,8 +25,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return try RouteHelper.createResponse(data: respObj)
 
                 } catch {
-                    Log.error.log("Error on createParty route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+                    return RouteHelper.createErrorResponse(error: error, "Error on createParty route - \(error)")
                 }
 
             }
@@ -44,8 +43,8 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return try RouteHelper.createResponse(data: respObj)
 
                 } catch {
-                    Log.error.log("Error on joinParty route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+
+                    return RouteHelper.createErrorResponse(error: error, "Error on joinParty route - \(error)")
                 }
             }
 
@@ -73,8 +72,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return Response()
 
                 } catch {
-                    Log.error.log("Error on leaveParty route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+                    return RouteHelper.createErrorResponse(error: error, "Error on leaveParty route - \(error)")
                 }
 
             }
@@ -87,9 +85,6 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     guard let reqBody = req.body.data else { return Response(status: .badRequest) }
                     let msgReq = try JSONDecoder().decode(SendMessageRequest.self, from: reqBody)
 
-//                    guard let userData = try await supabase.fetchRows(tableType: .users, dictionary: ["id": "\(msgReq.userID)"]).first as? UsersTable else {
-//                        throw SharedErrors.supabase(error: .rowIsEmpty)
-//                    }
                     //Message ID, same ID for both the MessageTable id & WSMessage
                     let id = UUID()
 
@@ -98,8 +93,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
 
                     return Response()
                 } catch {
-                    Log.error.log("Error on leaveParty route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+                    return RouteHelper.createErrorResponse(error: error, "Error on leaveParty route - \(error)")
                 }
 
             }
@@ -117,8 +111,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     return Response()
 
                 } catch {
-                    Log.error.log("Error on updateRating route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+                    return RouteHelper.createErrorResponse(error: error, "Error on updateRating route - \(error)")
                 }
             }
 
@@ -138,11 +131,9 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     let userIDString = pathComponents[0].components(separatedBy: "=")[1]
                     let partyIDString = pathComponents[1].components(separatedBy: "=")[1]
 
-                    guard let userID = pathComponents.count == 2 ? userIDString : nil else {
-                        throw SharedErrors.general(error: .generalError("Unable to parse user id"))
-                    }
+                    guard let userID = pathComponents.count == 2 ? userIDString : nil else { throw SharedErrors.internalServerError(error: "Server was unable to parse the user id") }
 
-                    guard let partyID = pathComponents.count == 2 ? partyIDString : nil else { throw SharedErrors.general(error: .generalError("Unable to parse partyID"))}
+                    guard let partyID = pathComponents.count == 2 ? partyIDString : nil else { throw SharedErrors.internalServerError(error: "Server was unable to parse the party id")}
 
                     let restaurants: [RatedRestaurantsTable] = try await supabase.getRatedRestaurants(userID: userID, partyID: partyID)
 
@@ -150,8 +141,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
 
                     return try RouteHelper.createResponse(data: responseObj)
                 } catch {
-                    Log.error.log("Error on topChoices route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+                    return RouteHelper.createErrorResponse(error: error, "Error on topChoices route - \(error)")
                 }
 
             }
@@ -162,7 +152,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                 do {
                     guard let path = req.url.query else { return Response(status: .badRequest) }
                     let pathComponents = path.components(separatedBy: "=")
-                    guard let partyID = pathComponents.count == 2 ? pathComponents[1] : nil else { throw SharedErrors.general(error: .generalError("Unable to parse partyID"))}
+                    guard let partyID = pathComponents.count == 2 ? pathComponents[1] : nil else { throw SharedErrors.internalServerError(error: "Server was unable to parse the party id")}
 
                     let topRestaurants: [RatedRestaurantsTable] = try await supabase.getTopChoices(partyID: partyID)
 
@@ -170,8 +160,7 @@ func routes(_ app: Application, supabase: SupaBase) throws {
 
                     return try RouteHelper.createResponse(data: responseObj)
                 } catch {
-                    Log.error.log("Error on topChoices route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+                    return RouteHelper.createErrorResponse(error: error, "Error on topChoices route - \(error)")
                 }
 
             }
@@ -181,20 +170,19 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                 do {
                     guard let path = req.url.query else { return Response(status: .badRequest) }
                     let pathComponents = path.components(separatedBy: "=")
-                    guard let userID = pathComponents.count == 2 ? pathComponents[1] : nil else { throw SharedErrors.general(error: .generalError("Unable to parse User ID"))}
+                    guard let userID = pathComponents.count == 2 ? pathComponents[1] : nil else { throw SharedErrors.internalServerError(error: "Server was unable to parse the user id")}
 
                     // Get Party associated with the user
                     let party = try await supabase.rejoinParty(userID: userID)
                     let userTable = try await supabase.fetchRows(tableType: .users, dictionary: ["id": userID]).first as? UsersTable
-                    guard let userTable else { throw SharedErrors.general(error: .missingValue("UsersTable is nil"))}
+                    guard let userTable else { throw SharedErrors.internalServerError(error: "Server was unable to retrieve the correct user with the id of \(userID)")}
 
                     let responseObj = RejoinPartyGetResponse(username: userTable.username, partyID: party.id, partyCode: party.code, yelpURL: party.restaurants_url ?? "", partyName: party.party_name)
 
                     return try RouteHelper.createResponse(data: responseObj)
 
                 } catch {
-                    Log.error.log("Error on topChoices route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+                    return RouteHelper.createErrorResponse(error: error, "Error on topChoices route - \(error)")
                 }
             }
         case .getMessages:
@@ -203,18 +191,19 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                 do {
                     guard let path = req.url.query else { return Response(status: .badRequest) }
                     let pathComponents = path.components(separatedBy: "=")
-                    guard let partyID = pathComponents.count == 2 ? pathComponents[1] : nil else { throw SharedErrors.general(error: .generalError("Unable to parse party ID"))}
+                    guard let partyID = pathComponents.count == 2 ? pathComponents[1] : nil else { throw SharedErrors.internalServerError(error: "Server was unable to correctly parse the party ID")}
 
 
-                    guard let messages = try await supabase.fetchRows(tableType: .messages, dictionary: ["party_id": partyID]) as? [MessagesTable] else { throw SharedErrors.general(error: .missingValue("MessagesTable is nil")) }
+                    guard let messages = try await supabase.fetchRows(tableType: .messages, dictionary: ["party_id": partyID]) as? [MessagesTable] else {
+                        throw SharedErrors.internalServerError(error: "Server was unable to retrieve the correct message using the party id \(partyID)")
+                    }
 
                     let responseObj = MessagesGetResponse(messages: messages)
 
                     return try RouteHelper.createResponse(data: responseObj)
 
                 } catch {
-                    Log.error.log("Error on getMessages route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+                    return RouteHelper.createErrorResponse(error: error, "Error on getMessages route - \(error)")
                 }
 
             }
@@ -225,30 +214,28 @@ func routes(_ app: Application, supabase: SupaBase) throws {
                     guard let path = req.url.query else { return Response(status: .badRequest) }
 
                     let pathComponents = path.components(separatedBy: "=")
-                    guard let encodedUrlString = pathComponents.count == 2 ? pathComponents[1] : nil else { throw SharedErrors.general(error: .generalError("Unable to parse yelp url"))}
+                    guard let encodedUrlString = pathComponents.count == 2 ? pathComponents[1] : nil else { throw SharedErrors.internalServerError(error: "Server was unable to parse the provided Yelp URL")}
 
-                    let decodeUrlString = encodedUrlString.replacingOccurrences(of: "%3D", with: "=").replacingOccurrences(of: "%26", with: "&")
+                    let decodedUrlString = encodedUrlString.replacingOccurrences(of: "%3D", with: "=").replacingOccurrences(of: "%26", with: "&")
 
-                    guard let yelpKey = Environment.get("YELP_KEY") else {
-                        Log.error.log("Unable to retrieve yelp key")
-                        return RouteHelper.createErrorResponse(error: SharedErrors.internalServerError(error: "Server was unable to retrieve the yelp key"))
-                    }
-
-                    let uri = URI(string: decodeUrlString)
+                    let uri = URI(string: decodedUrlString)
 
                     let yelpResponse = try await req.client.get(uri) { outgoingReq in
-                        outgoingReq.headers.bearerAuthorization = BearerAuthorization(token: yelpKey)
+                        outgoingReq.headers.bearerAuthorization = BearerAuthorization(token: yelpAPIKey)
+                    }
+
+                    if !yelpResponse.status.mayHaveResponseBody {
+                        return RouteHelper.createErrorResponse(error: SharedErrors.internalServerError(error: "Server was unable to retrieve a valid status code from the Yelp API"), "Yelp returned with an invalid status code of \(yelpResponse.status.code) using the url - \(decodedUrlString)")
                     }
 
                     guard let validData = yelpResponse.body else {
-                        return RouteHelper.createErrorResponse(error: SharedErrors.internalServerError(error: "Unable to get yelp data"))
+                        return RouteHelper.createErrorResponse(error: SharedErrors.internalServerError(error: "Server was unable to retrieve a valid yelp response body"), "Server was unable to retrieve a valid yelp response body")
                     }
 
                     return Response(body: Response.Body(data: Data(buffer: validData)))
 
                 } catch {
-                    Log.error.log("Error on getMessages route - \(error)")
-                    return RouteHelper.createErrorResponse(error: error)
+                    return RouteHelper.createErrorResponse(error: error, "Error on yelpRestaurants route - \(error)")
                 }
 
             }

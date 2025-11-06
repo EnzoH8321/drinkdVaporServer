@@ -221,6 +221,7 @@ func routes(_ app: Application, supabase: SupaBase, yelpAPIKey: String) throws {
                     let uri = URI(string: decodedUrlString)
 
                     Log.general.log("Building with URI - \(uri)")
+                    Log.general.log("KEY USED - \(yelpAPIKey)")
 
                     let yelpResponse = try await req.client.get(uri) { outgoingReq in
                         outgoingReq.headers.bearerAuthorization = BearerAuthorization(token: yelpAPIKey)

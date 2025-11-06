@@ -220,9 +220,6 @@ func routes(_ app: Application, supabase: SupaBase, yelpAPIKey: String) throws {
 
                     let uri = URI(string: decodedUrlString)
 
-                    Log.general.log("Building with URI - \(uri)")
-                    Log.general.log("KEY USED - \(yelpAPIKey)")
-
                     let yelpResponse = try await req.client.get(uri) { outgoingReq in
                         outgoingReq.headers.bearerAuthorization = BearerAuthorization(token: yelpAPIKey)
                     }
@@ -230,8 +227,6 @@ func routes(_ app: Application, supabase: SupaBase, yelpAPIKey: String) throws {
                     if !(200...299).contains(yelpResponse.status.code) {
                         Log.error.log("Yelp server returned with an invalid status code: \(yelpResponse.status.code)")
                     }
-
-                    Log.general.log("Yelp Response -> \(yelpResponse)")
 
                     guard let validData = yelpResponse.body else {
                         return RouteHelper.createErrorResponse(error: SharedErrors.internalServerError(error: "Server was unable to retrieve a valid yelp response body"), "Server was unable to retrieve a valid yelp response body")

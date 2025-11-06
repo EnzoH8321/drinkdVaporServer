@@ -228,6 +228,8 @@ func routes(_ app: Application, supabase: SupaBase, yelpAPIKey: String) throws {
                         return RouteHelper.createErrorResponse(error: SharedErrors.internalServerError(error: "Server was unable to retrieve a valid status code from the Yelp API"), "Yelp returned with an invalid status code of \(yelpResponse.status.code) using the url - \(decodedUrlString)")
                     }
 
+                    Log.general.log("Yelp Response -> \(yelpResponse)")
+
                     guard let validData = yelpResponse.body else {
                         return RouteHelper.createErrorResponse(error: SharedErrors.internalServerError(error: "Server was unable to retrieve a valid yelp response body"), "Server was unable to retrieve a valid yelp response body")
                     }

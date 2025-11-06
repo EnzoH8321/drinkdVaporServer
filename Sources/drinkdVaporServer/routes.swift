@@ -222,7 +222,10 @@ func routes(_ app: Application, supabase: SupaBase, yelpAPIKey: String) throws {
 
                     let yelpResponse = try await req.client.get(uri) { outgoingReq in
                         outgoingReq.headers.bearerAuthorization = BearerAuthorization(token: yelpAPIKey)
+                        Log.general.log("Outgoing Req- \(outgoingReq)")
                     }
+
+                    Log.general.log("Yelp response - \(yelpResponse)")
 
                     if !(200...299).contains(yelpResponse.status.code) {
                         Log.error.log("Yelp server returned with an invalid status code: \(yelpResponse.status.code)")

@@ -4,7 +4,7 @@
 #
 
 app = 'drinkdvaporserver'
-primary_region = 'lax'
+primary_region = 'ord'
 
 [build]
 dockerfile = "Dockerfile"
